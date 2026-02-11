@@ -40,7 +40,7 @@ class App(arcade.Window):
             self.theme = "dark"
         resp = requests.get(url=map_api_server, params={'ll': f"{self.x},{self.y}",
                                                         'spn': f"{self.span},{self.span}",
-                                                        'apikey': str(api_key)})
+                                                        'apikey': str(api_key), "theme": self.theme})
         with open("map.png", "wb") as mp:
             mp.write(resp.content)
         self.texture = arcade.load_texture("map.png")
