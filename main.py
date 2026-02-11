@@ -14,8 +14,8 @@ class App(arcade.Window):
         super().__init__(800, 600)
         self.width = 800
         self.height = 600
-        self.x = x
-        self.y = y
+        self.x = float(x)
+        self.y = float(y)
         self.span = 1
 
         resp = requests.get(url=map_api_server, params={'ll': f"{self.x},{self.y}",
@@ -29,9 +29,9 @@ class App(arcade.Window):
 
     def on_key_press(self, key, modifiers):
         if arcade.key.PAGEUP == key:
-            self.span *= 1.2 if self.span * 1.2 < MAX_SPN else MAX_SPN
+            self.span *= 1.4 if self.span * 1.4 < MAX_SPN else MAX_SPN
         if arcade.key.PAGEDOWN == key:
-            self.span /= 1.2 if self.span / 1.2 > MIN_SPN else MIN_SPN
+            self.span /= 1.4 if self.span / 1.4 > MIN_SPN else MIN_SPN
 
         resp = requests.get(url=map_api_server, params={'ll': f"{self.x},{self.y}",
                                                         'spn': f"{self.span},{self.span}",
@@ -39,23 +39,25 @@ class App(arcade.Window):
         with open("map.png", "wb") as mp:
             mp.write(resp.content)
         self.texture = arcade.load_texture("map.png")
-
+        step_move = self.span * 0.8
+        if arcade.key.LEFT == key:
+            self.x -= step_move
+        elif arcade.key.RIGHT == key:
+            self.x += step_move
+        if arcade.key.UP == key:
+            self.y += step_move
+        if arcade.key.DOWN == key:
+            self.y -= step_move
 
     def on_update(self, delta_time):
         print(self.span)
 
-
-        """if arcade.key.LEFT in self.keys_pressed:
-
-        if arcade.key.RIGHT in self.keys_pressed:
-
-        if arcade.key.UP in self.keys_pressed:
-
-        if arcade.key.DOWN in self.keys_pressed:"""
+        """"""
 
     def on_draw(self):
         arcade.draw_texture_rect(self.texture,
                                  arcade.rect.XYWH(self.width // 2, self.height // 2, self.width, self.height))
+
 
 def setup_game(coord_x, coord_y):
     game = App(coord_x, coord_y)
