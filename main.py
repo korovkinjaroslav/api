@@ -1,7 +1,6 @@
 import requests
 import arcade
 import PIL
-from pyglet.event import EVENT_HANDLE_STATE
 
 MAX_SPN = 50
 MIN_SPN = 0.05
@@ -16,46 +15,39 @@ class App(arcade.Window):
         self.height = 600
         self.x = x
         self.y = y
-        self.span = 1
-
+        self.span = 0.5
+        self.theme = "light"
+        self.span = 0.5
         resp = requests.get(url=map_api_server, params={'ll': f"{self.x},{self.y}",
                                                         'spn': f"{self.span},{self.span}",
-                                                        'apikey': str(api_key)})
+                                                        'apikey': str(api_key),
+                                                        'theme': self.theme})
         with open("map.png", "wb") as mp:
             mp.write(resp.content)
         self.texture = arcade.load_texture("map.png")
+
+    def on_draw(self):
         arcade.draw_texture_rect(self.texture,
                                  arcade.rect.XYWH(self.width // 2, self.height // 2, self.width, self.height))
 
     def on_key_press(self, key, modifiers):
         if arcade.key.PAGEUP == key:
             self.span *= 1.2 if self.span * 1.2 < MAX_SPN else MAX_SPN
-        if arcade.key.PAGEDOWN == key:
+        elif arcade.key.PAGEDOWN == key:
             self.span /= 1.2 if self.span / 1.2 > MIN_SPN else MIN_SPN
 
+        elif key == arcade.key.L:
+            self.theme = "light"
+        elif key == arcade.key.D:
+            self.theme = "dark"
         resp = requests.get(url=map_api_server, params={'ll': f"{self.x},{self.y}",
                                                         'spn': f"{self.span},{self.span}",
-                                                        'apikey': str(api_key)})
+                                                        'apikey': str(api_key),
+                                                        'theme': self.theme})
         with open("map.png", "wb") as mp:
             mp.write(resp.content)
         self.texture = arcade.load_texture("map.png")
 
-
-    def on_update(self, delta_time):
-        print(self.span)
-
-
-        """if arcade.key.LEFT in self.keys_pressed:
-
-        if arcade.key.RIGHT in self.keys_pressed:
-
-        if arcade.key.UP in self.keys_pressed:
-
-        if arcade.key.DOWN in self.keys_pressed:"""
-
-    def on_draw(self):
-        arcade.draw_texture_rect(self.texture,
-                                 arcade.rect.XYWH(self.width // 2, self.height // 2, self.width, self.height))
 
 def setup_game(coord_x, coord_y):
     game = App(coord_x, coord_y)
