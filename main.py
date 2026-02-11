@@ -1,7 +1,6 @@
 import requests
 import arcade
 import PIL
-from pyglet.event import EVENT_HANDLE_STATE
 
 MAX_SPN = 50
 MIN_SPN = 0.05
@@ -16,23 +15,29 @@ class App(arcade.Window):
         self.height = 600
         self.x = float(x)
         self.y = float(y)
-        self.span = 1
-
+        self.span = 0.5
+        self.theme = "light"
         resp = requests.get(url=map_api_server, params={'ll': f"{self.x},{self.y}",
                                                         'spn': f"{self.span},{self.span}",
                                                         'apikey': str(api_key)})
         with open("map.png", "wb") as mp:
             mp.write(resp.content)
         self.texture = arcade.load_texture("map.png")
+
+    def on_draw(self):
         arcade.draw_texture_rect(self.texture,
                                  arcade.rect.XYWH(self.width // 2, self.height // 2, self.width, self.height))
 
     def on_key_press(self, key, modifiers):
         if arcade.key.PAGEUP == key:
             self.span *= 1.4 if self.span * 1.4 < MAX_SPN else MAX_SPN
-        if arcade.key.PAGEDOWN == key:
+        elif arcade.key.PAGEDOWN == key:
             self.span /= 1.4 if self.span / 1.4 > MIN_SPN else MIN_SPN
 
+        elif key == arcade.key.L:
+            self.theme = "light"
+        elif key == arcade.key.D:
+            self.theme = "dark"
         resp = requests.get(url=map_api_server, params={'ll': f"{self.x},{self.y}",
                                                         'spn': f"{self.span},{self.span}",
                                                         'apikey': str(api_key)})
@@ -49,15 +54,9 @@ class App(arcade.Window):
         if arcade.key.DOWN == key:
             self.y -= step_move
 
-    def on_update(self, delta_time):
-        print(self.span)
-
-        """"""
-
     def on_draw(self):
         arcade.draw_texture_rect(self.texture,
                                  arcade.rect.XYWH(self.width // 2, self.height // 2, self.width, self.height))
-
 
 def setup_game(coord_x, coord_y):
     game = App(coord_x, coord_y)
